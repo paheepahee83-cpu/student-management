@@ -2,7 +2,7 @@ function Footer() {
     return (
         <footer className="footer">
             <p>
-                &copy; {new Date().getFullYear()} ABC Institute. All rights reserved.
+                &copy; {new Date().getFullYear()} UCJ Institute. All rights reserved.
             </p>
         </footer>
     );

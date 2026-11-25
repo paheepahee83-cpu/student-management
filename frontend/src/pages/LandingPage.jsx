@@ -34,7 +34,7 @@ function LandingPage() {
                         <div className="hero-content">
 
                             <span className="hero-badge">
-                                ABC Institute
+                                UCJ Institute
                             </span>
 
                             <h1>
@@ -71,9 +71,12 @@ function LandingPage() {
 
                         <div className="hero-card">
 
-                            <div className="hero-card-icon">
-                                <GraduationCap size={40} />
-                            </div>
+    <div className="hero-card-image">
+        <img
+            src="https://ucj.ac.lk/wp-content/uploads/2017/02/unicollege-270x177.png"
+            alt="University College of Jaffna"
+        />
+    </div>
 
                             <h2>
                                 Manage Students

@@ -1,5 +1,6 @@
+
 import { useEffect, useState } from "react";
-import { LuX } from "react-icons/lu";
+import { LuX, LuEye, LuEyeOff } from "react-icons/lu";
 
 import apiRequest from "../services/api";
 
@@ -27,6 +28,9 @@ function StudentFormModal({
     const [formLoading, setFormLoading] = useState(false);
     const [formError, setFormError] = useState("");
 
+    // Password visibility toggle
+    const [showPassword, setShowPassword] = useState(false);
+
     // Reset form when editingStudent changes or modal opens
     useEffect(() => {
         if (!show) return;
@@ -41,10 +45,10 @@ function StudentFormModal({
                 password: ""
             });
         } else {
-
             setFormData(initialFormData);
         }
 
+        setShowPassword(false);
         setFormError("");
     }, [editingStudent, show]);
 
@@ -58,14 +62,12 @@ function StudentFormModal({
         }));
     };
 
-
     // Handle Close
     const handleClose = () => {
         if (formLoading) return;
         setFormError("");
         onClose();
     };
-
 
     // Handle Form Submission
     const handleSubmit = async (event) => {
@@ -134,13 +136,10 @@ function StudentFormModal({
         }
     };
 
-
     if (!show) return null;
-
 
     // Reusable Input Field
     const renderInput = (name, label, type = "text") => (
-
         <div className="form-group">
 
             <label htmlFor={name}>
@@ -159,7 +158,6 @@ function StudentFormModal({
 
         </div>
     );
-
 
     // Component UI
     return (
@@ -204,13 +202,11 @@ function StudentFormModal({
 
                 </div>
 
-
                 {formError && (
                     <div className="dashboard-error">
                         {formError}
                     </div>
                 )}
-
 
                 <form
                     className="student-form"
@@ -243,7 +239,6 @@ function StudentFormModal({
                         "Phone Number"
                     )}
 
-
                     {!editingStudent && (
                         <div className="form-group">
 
@@ -251,17 +246,40 @@ function StudentFormModal({
                                 Password
                             </label>
 
-                            <input
-                                type="password"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleInputChange}
-                                disabled={formLoading}
-                                required
-                            />
+                            <div className="password-input-wrapper">
+
+                                <input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleInputChange}
+                                    disabled={formLoading}
+                                    required
+                                />
+
+                                <button
+                                    type="button"
+                                    className="password-toggle-button"
+                                    onClick={() =>
+                                        setShowPassword(previous => !previous)
+                                    }
+                                    disabled={formLoading}
+                                    aria-label={
+                                        showPassword
+                                            ? "Hide password"
+                                            : "Show password"
+                                    }
+                                >
+                                    {showPassword
+                                        ? <LuEyeOff size={20} />
+                                        : <LuEye size={20} />
+                                    }
+                                </button>
+
+                            </div>
                         </div>
                     )}
-
 
                     <div className="form-actions">
 

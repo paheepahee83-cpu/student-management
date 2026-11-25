@@ -1,3 +1,4 @@
+
 const pool = require("../config/db");
 
 const findUserByUsername = async (username) => {
@@ -18,7 +19,16 @@ const findUserById = async (userId) => {
     return rows[0];
 };
 
+// Update Last Login
+const updateLastLogin = async (userId) => {
+    await pool.execute(
+        "UPDATE users SET last_login = NOW() WHERE user_id = ?",
+        [userId]
+    );
+};
+
 module.exports = {
     findUserByUsername,
-    findUserById
+    findUserById,
+    updateLastLogin
 };

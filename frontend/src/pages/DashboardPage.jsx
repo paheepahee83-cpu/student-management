@@ -38,6 +38,30 @@ function DashboardPage() {
 
     const [editingStudent, setEditingStudent] = useState(null);
 
+    const formatLastSeen = (lastLogin) => {
+
+    if (!lastLogin) {
+        return "Never logged in";
+    }
+
+    const date = new Date(
+        String(lastLogin).replace(" ", "T")
+    );
+
+    if (Number.isNaN(date.getTime())) {
+        return "Unknown";
+    }
+
+    return date.toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+    });
+};
+
     // Load current user
     useEffect(() => {
         const loadUser = async () => {
@@ -408,6 +432,10 @@ function DashboardPage() {
                                         </th>
 
                                         <th>
+                                           Last Seen
+                                        </th>
+
+                                        <th>
                                             Actions
                                         </th>
                                     </tr>
@@ -438,6 +466,10 @@ function DashboardPage() {
 
                                             <td>
                                                 {student.phone_number}
+                                            </td>
+
+                                            <td>
+                                                {formatLastSeen(student.last_login)}
                                             </td>
 
                                             <td>

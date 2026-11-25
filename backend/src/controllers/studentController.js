@@ -116,15 +116,28 @@ const addStudent = async (req, res) => {
 
 
         // Create student profile
-        const studentId = await createStudent(
-            connection,
-            userId,
-            registrationNo,
-            firstName,
-            lastName,
-            email,
-            phoneNumber
-        );
+        const getAllStudents = async () => {
+
+    const [rows] = await pool.execute(
+        `SELECT
+            s.student_id,
+            s.user_id,
+            s.registration_no,
+            s.first_name,
+            s.last_name,
+            s.email,
+            s.phone_number,
+            s.created_at,
+            s.updated_at,
+            u.last_login
+        FROM students s
+        INNER JOIN users u
+            ON s.user_id = u.user_id
+        ORDER BY s.student_id DESC`
+    );
+
+    return rows;
+};
 
 
         // Commit transaction
