@@ -27,11 +27,11 @@ function StudentFormModal({
 
     const [formLoading, setFormLoading] = useState(false);
     const [formError, setFormError] = useState("");
+    const [fieldErrors, setFieldErrors] = useState({});
 
-    // Password visibility toggle
     const [showPassword, setShowPassword] = useState(false);
 
-    // Reset form when editingStudent changes or modal opens
+    // Reset form when modal opens
     useEffect(() => {
         if (!show) return;
 
@@ -50,59 +50,147 @@ function StudentFormModal({
 
         setShowPassword(false);
         setFormError("");
+        setFieldErrors({});
+
     }, [editingStudent, show]);
+
+    // Validate student form
+    const validateForm = () => {
+
+        const errors = {};
+
+        const {
+            registrationNo,
+            firstName,
+            lastName,
+            email,
+            phoneNumber,
+            password
+        } = formData;
+
+        // Registration Number
+        if (!registrationNo.trim()) {
+            errors.registrationNo = "Registration number is required.";
+        } else if (!/^[A-Za-z0-9_-]+$/.test(registrationNo.trim())) {
+            errors.registrationNo =
+                "Only letters, numbers, hyphens and underscores are allowed.";
+        }
+
+        // First Name
+        if (!firstName.trim()) {
+            errors.firstName = "First name is required.";
+        } else if (!/^[A-Za-z\s]{3,}$/.test(firstName.trim())) {
+            errors.firstName =
+                "First name must contain at least 3 letters.";
+        }
+
+        // Last Name
+        if (!lastName.trim()) {
+            errors.lastName = "Last name is required.";
+        } else if (!/^[A-Za-z\s]{3,}$/.test(lastName.trim())) {
+            errors.lastName =
+                "Last name must contain at least 3 letters.";
+        }
+
+        // Email
+        if (!email.trim()) {
+            errors.email = "Email address is required.";
+        } else if (
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+        ) {
+            errors.email = "Please enter a valid email address.";
+        }
+
+        // Phone Number
+        if (!phoneNumber.trim()) {
+            errors.phoneNumber = "Phone number is required.";
+        } else if (!/^\d{10}$/.test(phoneNumber.trim())) {
+            errors.phoneNumber =
+                "Phone number must contain exactly 10 digits.";
+        }
+
+        // Password (Add Student only)
+        if (!editingStudent && !password.trim()) {
+            errors.password = "Password is required.";
+        }
+
+        setFieldErrors(errors);
+
+        return Object.keys(errors).length === 0;
+    };
 
     // Handle Input Changes
     const handleInputChange = (event) => {
+
         const { name, value } = event.target;
 
         setFormData(previous => ({
             ...previous,
             [name]: value
         }));
+
+        // Clear the changed field's error
+        setFieldErrors(previous => ({
+            ...previous,
+            [name]: ""
+        }));
+
+        setFormError("");
     };
 
     // Handle Close
     const handleClose = () => {
+
         if (formLoading) return;
+
         setFormError("");
+        setFieldErrors({});
+
         onClose();
     };
 
     // Handle Form Submission
     const handleSubmit = async (event) => {
+
         event.preventDefault();
 
         setFormError("");
 
+        // Frontend validation
+        if (!validateForm()) {
+            return;
+        }
+
         try {
+
             setFormLoading(true);
 
+            const studentData = {
+                registrationNo: formData.registrationNo.trim(),
+                firstName: formData.firstName.trim(),
+                lastName: formData.lastName.trim(),
+                email: formData.email.trim(),
+                phoneNumber: formData.phoneNumber.trim()
+            };
+
             if (editingStudent) {
+
                 await apiRequest(
                     `/api/students/${editingStudent.student_id}`,
                     {
                         method: "PUT",
-                        body: JSON.stringify({
-                            registrationNo: formData.registrationNo.trim(),
-                            firstName: formData.firstName.trim(),
-                            lastName: formData.lastName.trim(),
-                            email: formData.email.trim(),
-                            phoneNumber: formData.phoneNumber.trim()
-                        })
+                        body: JSON.stringify(studentData)
                     }
                 );
+
             } else {
+
                 await apiRequest(
                     "/api/students/",
                     {
                         method: "POST",
                         body: JSON.stringify({
-                            registrationNo: formData.registrationNo.trim(),
-                            firstName: formData.firstName.trim(),
-                            lastName: formData.lastName.trim(),
-                            email: formData.email.trim(),
-                            phoneNumber: formData.phoneNumber.trim(),
+                            ...studentData,
                             password: formData.password
                         })
                     }
@@ -113,6 +201,7 @@ function StudentFormModal({
             handleClose();
 
         } catch (error) {
+
             console.error("Student save error:", error);
 
             if (error.status === 401) {
@@ -127,11 +216,24 @@ function StudentFormModal({
                 return;
             }
 
+            // Handle backend validation errors
+            if (error.status === 400 && error.errors) {
+
+                setFieldErrors(error.errors);
+
+                setFormError(
+                    error.message || "Please correct the student information."
+                );
+
+                return;
+            }
+
             setFormError(
                 error.message || "Failed to save student."
             );
 
         } finally {
+
             setFormLoading(false);
         }
     };
@@ -140,6 +242,7 @@ function StudentFormModal({
 
     // Reusable Input Field
     const renderInput = (name, label, type = "text") => (
+
         <div className="form-group">
 
             <label htmlFor={name}>
@@ -153,13 +256,25 @@ function StudentFormModal({
                 value={formData[name]}
                 onChange={handleInputChange}
                 disabled={formLoading}
-                required
+                className={fieldErrors[name] ? "is-invalid" : ""}
+                aria-invalid={Boolean(fieldErrors[name])}
+                aria-describedby={
+                    fieldErrors[name] ? `${name}-error` : undefined
+                }
             />
+
+            {fieldErrors[name] && (
+                <small
+                    id={`${name}-error`}
+                    className="field-error"
+                >
+                    {fieldErrors[name]}
+                </small>
+            )}
 
         </div>
     );
 
-    // Component UI
     return (
 
         <div
@@ -211,6 +326,7 @@ function StudentFormModal({
                 <form
                     className="student-form"
                     onSubmit={handleSubmit}
+                    noValidate
                 >
 
                     {renderInput(
@@ -240,6 +356,7 @@ function StudentFormModal({
                     )}
 
                     {!editingStudent && (
+
                         <div className="form-group">
 
                             <label htmlFor="password">
@@ -255,7 +372,12 @@ function StudentFormModal({
                                     value={formData.password}
                                     onChange={handleInputChange}
                                     disabled={formLoading}
-                                    required
+                                    className={
+                                        fieldErrors.password
+                                            ? "is-invalid"
+                                            : ""
+                                    }
+                                    aria-invalid={Boolean(fieldErrors.password)}
                                 />
 
                                 <button
@@ -278,6 +400,13 @@ function StudentFormModal({
                                 </button>
 
                             </div>
+
+                            {fieldErrors.password && (
+                                <small className="field-error">
+                                    {fieldErrors.password}
+                                </small>
+                            )}
+
                         </div>
                     )}
 

@@ -284,3 +284,98 @@
         max-height: 95vh;
     }
 }
+
+
+
+/* =========================================================
+   CR-002 - Student Input Validation
+   ========================================================= */
+
+/* Invalid Input */
+
+.student-form .form-group input.is-invalid {
+    border: 1px solid #dc2626;
+    background: #fffafa;
+}
+
+.student-form .form-group input.is-invalid:focus {
+    border-color: #dc2626;
+
+    box-shadow:
+        0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+
+/* Validation Error Message */
+
+.field-error {
+    display: block;
+
+    color: #dc2626;
+
+    font-size: 12px;
+    font-weight: 500;
+
+    margin-top: 2px;
+    line-height: 1.4;
+}
+
+
+/* Password Input Wrapper */
+
+.password-input-wrapper {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper input {
+    padding-right: 45px !important;
+}
+
+.password-toggle-button {
+    position: absolute;
+
+    right: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    background: transparent;
+
+    color: #64748b;
+
+    cursor: pointer;
+
+    padding: 5px;
+}
+
+.password-toggle-button:hover {
+    color: #2563eb;
+}
+
+.password-toggle-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+
+/* Form Error */
+
+.dashboard-error {
+    margin-bottom: 15px;
+}
+
+
+/* Responsive Validation Messages */
+
+@media (max-width: 500px) {
+
+    .field-error {
+        font-size: 11px;
+    }
+}
+
